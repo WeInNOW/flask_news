@@ -1,0 +1,126 @@
+{%- macro base() -%}
+  <script type="text/javascript" charset="utf-8">
+   var g = {
+       csrftoken: "{{ csrf_token() }}"
+   };
+   var url = {
+       index: "{{ request.args.get('next') or '/' }}",
+       login: "{{ url_for('auth.login') }}",
+       forget: "{{ url_for('auth.forget')}}",
+       register: "{{ url_for('auth.register') }}",
+       captcha: "{{ url_for('captcha')}}"
+   };
+  </script>
+{%- endmacro %}
+
+{% macro error() -%}
+  {% if use_auth %}
+    <div class="alert alert-info" id="showerror" style="padding:8px;">
+      <button type="button" class="close" id="hide">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <ul>
+        <li id="error"></li>
+      </ul>
+    </div>
+  {% endif %}
+{%- endmacro %}
+
+{% macro forget(form) -%}
+
+  <form class="form-horizontal" style="max-width:420px;margin:auto">
+    {{ error() }}
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.email.label }}</label>
+      <div class="col-sm-9">
+        {{ form.email(class="form-control",placeholder="Email") }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.captcha.label }}</label>
+      <div class="col-sm-9">
+        {% include 'maple/captcha.html' %}
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <button type="button" class="btn btn-primary btn-block" id="forget">{{_('confirm')}}</button>
+      </div>
+    </div>
+  </form>
+{%- endmacro %}
+
+{% macro login(form) -%}
+  <form class="form-horizontal" style="max-width:420px;margin:auto">
+    {{ error() }}
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.username.label }}</label>
+      <div class="col-sm-9">
+        {{ form.username(class="form-control",placeholder="Username") }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.password.label }}</label>
+      <div class="col-sm-9">
+        {{ form.password(class="form-control",placeholder="Password") }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.captcha.label }}</label>
+      <div class="col-sm-9">
+        {% include 'maple/captcha.html' %}
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        {{ form.remember() }}{{ form.remember.label }}
+        <a class="pull-right" href="{{ url_for('auth.forget') }}">{{_('forget password?')}}</a>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <button type="button" class="btn btn-primary btn-block" id="login">{{_('login')}}</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <a href="{{ url_for('auth.register') }}">{{ _('not register')}}</a>
+      </div>
+    </div>
+  </form>
+{%- endmacro %}
+
+{% macro register(form) -%}
+  <form class="form-horizontal" style="max-width:420px;margin:auto">
+    {{ error() }}
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.username.label }}</label>
+      <div class="col-sm-9">
+        {{ form.username(class="form-control",placeholder="Username") }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.email.label }}</label>
+      <div class="col-sm-9">
+        {{ form.email(class="form-control",placeholder="Email") }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.password.label }}</label>
+      <div class="col-sm-9">
+        {{ form.password(class="form-control",placeholder="Password") }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-3 control-label">{{ form.captcha.label }}</label>
+      <div class="col-sm-9">
+        {% include 'maple/captcha.html' %}
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <button type="button" class="btn btn-primary btn-block" id="register">{{_('register')}}</button>
+      </div>
+    </div>
+  </form>
+{%- endmacro %}

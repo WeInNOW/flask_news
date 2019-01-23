@@ -1,0 +1,81 @@
+.question-info{
+    text-align: center;
+    margin-top: 20px;
+
+}
+.answer-list{
+    padding-left: 0;
+}
+.answer-list li{
+    list-style: none;
+    border-bottom: 1px solid #eee;
+    padding-top: 10px;
+}
+
+user-info{
+    font-size: 16px;
+    color: #9b9b9b;
+    line-height: 40px;
+}
+
+.user-info .username{
+    margin-left: 20px;
+}
+
+.answer-content{
+    margin-left: 60px;
+}
+
+/*添加的一点内容*/
+.content-container {
+    width: 679px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.left-container {
+    width: 577px;
+    float: left;
+}
+
+.right-container {
+    width: 316px;
+    float: right;
+}
+
+.ob-widget-header {
+    font-family: Georgia,"Bitstream Charter",serif;
+    font-size: 23px;
+    color: #969082;
+    padding-bottom: 0px;
+    padding-top: 10px;
+    margin-bottom: 25px;
+}
+
+.ob-dynamic-rec-container {
+    max-width: 315px;
+    display: inline-block;
+    vertical-align: top;
+    min-width: 50px;
+    width: 31.8%;
+    box-sizing: border-box;
+    position: relative;
+    margin: 0;
+}
+img {
+    border: 0;
+    vertical-align: middle;
+    max-width: 100%;
+    height: auto;
+}
+.ob-image-ratio {
+    height: 0px;
+    line-height: 0px;
+    padding-top: 55.55555555555556%;
+}
+
+ .aside-widget {
+     margin-bottom: 40px;
+}
+
+

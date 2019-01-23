@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}详情{% endblock %}
+
+{% block main %}
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <div class="row">
+        <!-- Post content -->
+        <div class="col-md-8">
+
+            <div class="section-row sticky-container">
+                <div class="main-post">
+                    <h3>{{ article.title }}</h3>
+                    <div class="date-source" data-sudaclick="share_1-0">
+				        <span class="date">{{ article.update_date }}</span>
+                    </div>
+                    <figure class="figure-img">
+                        <img class="img-responsive" src="{{ article.img_url }}" alt="">
+                    </figure>
+                    {% for text in article.text.strip().split('\n') %}
+{#                        <p class="question-content" style="text-indent: 2em;">{{ text }}</p>#}
+                        <p>{{ text }}</p>
+                    {% endfor %}
+                </div>
+                <div class="post-shares sticky-shares">
+{#                    <a href="#" class="share-facebook"><i class="fa fa-facebook"></i></a>#}
+{#                    <a href="#" class="share-twitter"><i class="fa fa-twitter"></i></a>#}
+{#                    <a href="#" class="share-google-plus"><i class="fa fa-google-plus"></i></a>#}
+{#                    <a href="#" class="share-pinterest"><i class="fa fa-pinterest"></i></a>#}
+{#                    <a href="#" class="share-linkedin"><i class="fa fa-linkedin"></i></a>#}
+{#                    <a href="#"><i class="fa fa-envelope"></i></a>#}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- ad -->
+            <div class="aside-widget text-center">
+                <a href="#" style="display: inline-block;margin: auto;">
+                    <img class="img-responsive" src={{ url_for('static',filename='img/ad-1.jpg') }} alt="" >
+                </a>
+            </div>
+            <!-- /ad -->
+            <!-- post widget -->
+            <div class="aside-widget">
+                <div class="section-title">
+                    <h2>相似文章</h2>
+                </div>
+                {% for article in relate_articles %}
+                    <div class="post post-widget">
+                        <a class="post-img" href="{{ url_for('detail',article_id=article.article_id) }}">
+                            <img src="{{ article.img_url }}" alt="">
+                        </a>
+                        <div class="post-body">
+                            <h3 class="post-title">
+                                <a href="{{ url_for('detail',article_id=article.article_id) }}">{{ article.title }}</a>
+                            </h3>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}
+

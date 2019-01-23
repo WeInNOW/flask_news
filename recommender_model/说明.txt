@@ -1,0 +1,33 @@
+两个入口：
+Train.py 训练模型
+Runtime.py 运行应用
+
+通用：（GeneralPara.py FilePathPara.py和模型的.py）
+WordDim 词袋向量维数
+HiddenDim 新闻编码维数
+ConDim GRU控制向量维数
+BatchSize MiniBatch大小
+MaxIter 训练多少个Batch
+AutoEncoderSavePath 自动编码器保存文件名
+RNNSavePath RNN文件名
+GRUSavePath GRU文件名
+NewsDataSetPath 新闻数据集路径
+HistoryDataSetPath 阅读历史数据集路径
+StopWordPath 停止词(NLP)路径
+RecommendedPath 系统推荐历史文件
+
+Train.py:
+TrainAutoEncoder 字面意思，训练模型还是只加载模型进行测试
+TrainRNN 同上
+TrainGRU 同上
+
+AutoEncoder.py:
+CorruptDim 随机选择多少维应用噪音
+TripletWeight 三元组弱监督强度（参见损失函数）
+ShowLossGraph 是否显示Loss图（RNN和GRU的默认显示且不阻塞），阻塞！
+
+RNN.py:
+TestRecommendCount 推荐项数
+DuplicateThresh 判定新闻重复的最小内积
+
+注意：直接使用词袋模型~
