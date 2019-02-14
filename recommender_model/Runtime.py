@@ -1,3 +1,4 @@
+import jieba
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -17,8 +18,13 @@ from FilePathPara import *
 
 # art_ids, art_cats, art_contents = Pre.PreprocessArticles(NewsDataSetPath, True)
 from preProcess_sql import PreProcess_sql
-
-art_ids, art_cats, art_contents, art_timestamp = PreProcess_sql.PreprocessArticles()
+# art_ids, art_cats, art_contents, art_timestamp = PreProcess_sql.PreprocessArticles()
+art_ids, art_cats, raw_words, art_timestamp = PreProcess_sql.PreprocessArticles()
+art_contents = []  # 记录文章直接的切分词语，已去除了英文和数字
+for art_content in art_contents:
+    art_content.replace("\n", "")
+    article_word = ' '.join(jieba.cut(art_content))
+    art_contents.append(re.sub('[a-zA-Z0-9.。:：,，)）(（！!?”“\"]', '', article_word))  # 去除英文和数字
 
 tokens = Pre.Tokenize(art_contents, StopWordPath)
 token_freq, max_freq = Pre.CountToken(tokens)
@@ -113,7 +119,7 @@ class Recommender:
             content = art_contents[art_index]
             if len(content) > 25:
                 content = content[:25] + "..."
-            self.news[i].configure(text = content, width = "40")
+            self.news[i].configure(text = content, width= "40")
             self.art_index[i] = art_index
             output_file.write("%04d"%art_index + ":" + content)
             output_file.write("\n")
@@ -143,14 +149,24 @@ class Recommender:
 
 
 def getRecommender(user_id):
+    """
+    为用户推荐时，只需计算单独一个用户即可；
+
+    :param user_id:
+    :return:
+    """
     TrainRatio = 0.7
     reader_his, out_art_read = PreProcess_sql.PreprocessHistory(art_use_ids, 7000)
+    # reader_his 中的元素： （user_id,[article_ids]）
     print("History Read.")
     reader_ids = [tuple[0] for tuple in reader_his]
     reader_record = [tuple[1] for tuple in reader_his]
-    gru = GRU(art_ids,reader_ids)
+    if user_id not in reader_ids:
+        # 用户无操作记录，需要进行其他推荐方式 -
+        exit(1)
+    gru = GRU(art_ids, reader_ids)  #
     gru.load(GRUSavePath + "7000.net")
-    return gru.recommender_articles(art_encoded,user_id, reader_record, TrainRatio)
+    return gru.recommender_articles(art_encoded, user_id, reader_record, TrainRatio)
 
 
 if __name__ == '__main__':

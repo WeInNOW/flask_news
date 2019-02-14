@@ -1,3 +1,6 @@
+import re
+
+import jieba
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -26,7 +29,14 @@ def train_test_RNN_GRU(TrainAutoEncoder=False,TrainRNN = False,TestRNN = False,T
     '''
     # 预处理文章
     # art_ids, art_cats, art_contents,art_timestamp = Pre.PreprocessArticles(NewsDataSetPath)
-    art_ids, art_cats, art_contents, art_timestamp = PreProcess_sql.PreprocessArticles(user_cnt)
+    # art_ids, art_cats, art_contents, art_timestamp = PreProcess_sql.PreprocessArticles(user_cnt)
+    art_ids, art_cats, raw_words, art_timestamp = PreProcess_sql.PreprocessArticles()
+    art_contents = []  # 记录文章直接的切分词语，已去除了英文和数字
+    for art_content in art_contents:
+        art_content.replace("\n", "")
+        article_word = ' '.join(jieba.cut(art_content))
+        art_contents.append(re.sub('[a-zA-Z0-9.。:：,，)）(（！!?”“\"]', '', article_word))  # 去除英文和数字
+
     tokens = Pre.Tokenize(art_contents, StopWordPath)
     token_freq, max_freq = Pre.CountToken(tokens)
     norm_freq = Pre.Normalize(token_freq, max_freq)
@@ -69,24 +79,24 @@ def train_test_RNN_GRU(TrainAutoEncoder=False,TrainRNN = False,TestRNN = False,T
     print("History Preprocessed.")
     # RNN
     rnn = RNN(art_ids,reader_ids)
-    if (TrainRNN):
+    if TrainRNN:
         print("RNN训练集loss:" + str(
             rnn.trainModel(art_encoded, reader_record, RNNSavePath + str(user_cnt) + ".net", TrainRatio)))
-    if (TestRNN):
+    if TestRNN:
         rnn.load(RNNSavePath + str(user_cnt) + ".net")
 
         print("RNN测试集准确率召回率：" + str(rnn.testModel(art_encoded, reader_record, TrainRatio)))
     # RNN完毕
     # GRU
     gru = GRU(art_ids,reader_ids)
-    if (TrainGRU):
+    if TrainGRU:
         print("GRUTrainloss:" + str(
             gru.trainModel(art_encoded, reader_record, GRUSavePath + str(user_cnt) + ".net", TrainRatio)))
     else:
         gru.load(GRUSavePath + str(user_cnt) + ".net")  # 载入对应用户规模
         rnn.eval()
         rnn.train(False)
-    if (TestGRU):
+    if TestGRU:
         print("GRU测试准确率、召回率：" + str(gru.testModel(art_encoded, reader_record, TrainRatio)))
     # GRU完毕
     # 计算已有历史的读者状态
@@ -103,11 +113,14 @@ def train_test_RNN_GRU(TrainAutoEncoder=False,TrainRNN = False,TestRNN = False,T
         for k in range(ConDim):
             con_state += [float(hidden[0, k]), ]
         user_repre[reader_ids[i]] = (user_state, con_state)
-    js.dump(user_repre, open(UserStatePath, "w"), indent=2) # 即便测试载入同样的模型，但所得user_state也并不相同
+    js.dump(user_repre, open(UserStatePath, "w"), indent=2)  # 即便测试载入同样的模型，但所得user_state也并不相同
     print("User state computed")
 
+
 def trains(user_cnt):
-    train_test_RNN_GRU(TrainAutoEncoder=True, TrainRNN=False, TestRNN=False, TrainGRU=True, TestGRU=True,user_cnt= user_cnt)
+    train_test_RNN_GRU(TrainAutoEncoder=True, TrainRNN=False, TestRNN=False, TrainGRU=True,
+                       TestGRU=True, user_cnt=user_cnt)
+
 
 def tests(user_cnt):
 
@@ -117,9 +130,9 @@ def tests(user_cnt):
 
 if __name__ == '__main__':
 
-    for i in range(1,8):
-        print("user cnt(k):"+ str(i))
-        trains(i*1000)
-    trains(user_cnt = 7558)
+    # for i in range(1,8):
+    #     print("user cnt(k):"+ str(i))
+    #     trains(i*1000)
+    trains(user_cnt=7558)
     # tests(1000)
 

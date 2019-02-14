@@ -5,11 +5,11 @@ import chardet
 import re
 import sys
 import time
+import parse_article
 from datetime import date
 from bs4 import BeautifulSoup
 from mySqlBase import MysqlConnect
 from distutils.filelist import findall
-
 
 category_dict = {'台湾': '港澳台', '财经': '财经', '国际': '国际', '体育': '文体', '视频': '其他', '图片': '其他', '国内': '社会', '社会': '社会',
                  '金融': '财经', '港澳': '港澳台', '文化': '文体', '华人': '国际', '产经': '财经', '娱乐': '其他', '汽车': '社会', '证券': '财经',
@@ -36,7 +36,6 @@ def get_soup(source_url):
 
 
 def crawl_news(source_url):
-
     # 类别直接由
     soups = get_soup(source_url)
 
@@ -69,11 +68,13 @@ def crawl_news(source_url):
             # print(category)
             if category is None:  # 没有出现的不做考虑
                 continue
-            # 不知道 2月 1号 会怎么填写； 2-1  还是 2-01
+            # 不知道 2月 1号 是： 2-1
             update_date = "2019-0" + time_list[index].replace(" ", "T")
             print(update_date)
             timestamp = int(time.mktime(time.strptime(update_date, '%Y-%m-%dT%H:%M')))
             img_url, title, text = get_news_property(url)
+            if len(text.strip()) < 3:
+                continue
         except Exception as e:
             print(e)
             continue
@@ -91,7 +92,6 @@ def crawl_news(source_url):
 
 
 def insert_into_sql(url, img_url, title, text, update_date, category, timestamp):
-
     mysql = MysqlConnect()
     query = '''
     select count(1) from crawl_article_info_online
@@ -140,13 +140,13 @@ def get_news_property(url):
         raise e
 
     content = ''
-    text_len = 200
+    text_len = 100
     if len(img_url) < 1:
         text_len += 100
     segment_cnt = 0
     [s.extract() for s in tag('script')]  # 去除指定script的内容
-    for segment in tag.find_all('p'):  # 获得3段就ok了
-        if segment_cnt > 3 and len(content) > text_len:
+    for segment in tag.find_all('p'):  # 获得2段就ok了
+        if segment_cnt > 2 and len(content) > text_len:
             break
         # print(segment.get_text())
         content += segment.get_text().strip('\n') + '\n'  # 获取相关的
@@ -157,7 +157,6 @@ def get_news_property(url):
 
 
 def drop():
-
     source_url = 'http://www.chinanews.com/'
     # 类别直接由
     soups = get_soup(source_url)
@@ -165,7 +164,7 @@ def drop():
     available_tags.extend(soups.find_all('div', class_='w1000 mt10'))
     url_list = []
     for tag in available_tags:
-    # 取tag的全部内容，然后直接解析url吧
+        # 取tag的全部内容，然后直接解析url吧
         raw_text = str(tag)
         pattern = '(https?://[^\s)";]+(\.(\w|/)*))'
         link = re.compile(pattern).findall(raw_text)
@@ -178,10 +177,8 @@ def temp_task():
 
 
 if __name__ == '__main__':
-    # 爬最近的三个页面 - 过滤没有图片的文章
-    source_url = 'http://www.chinanews.com/scroll-news/news1.html'
-    crawl_news(source_url)
-    source_url = 'http://www.chinanews.com/scroll-news/news2.html'
-    crawl_news(source_url)
-    source_url = 'http://www.chinanews.com/scroll-news/news3.html'
-    crawl_news(source_url)
+    # 爬最近的n个页面 - 过滤没有图片的文章
+    for i in range(1, 8):
+        source_url = 'http://www.chinanews.com/scroll-news/news' + str(i) + '.html'
+        crawl_news(source_url)
+    parse_article.sim_article_parse_update()

@@ -5,7 +5,7 @@ from flask_migrate import Migrate, MigrateCommand
 from platforms import app
 from exts import db
 from models import RsMemberDetail,RsMemberHistory,RsAtricleInfo
-
+import datetime
 manager = Manager(app)
 
 # 使用Migrate绑定app和db

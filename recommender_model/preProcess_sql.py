@@ -50,49 +50,46 @@ class MysqlConnect(object):
         :param user_cnt: 需要去指定规模的参数
         :return:
         '''
-        sql = '''select article_id,category_id,title,SUBSTRING_INDEX(text,' ',50),time_stamp from rs_article_info where article_id in(
-                    select distinct article_id from rs_member_history where member_id <(
+        sql = '''select article_id,category,title,SUBSTRING_INDEX(text,' ',50),time_stamp from crawl_article_info_online where article_id in(
+                    select distinct article_id from member_read_event where member_id <(
                         select user_id from member_detail order by user_id limit %s,1));
         '''%(user_cnt)
         full_article_info = self.select(sql)
         return full_article_info
 
-    def get_member_read_record(self,user_cnt):
-        his_query = '''select member_id,article_id,time_stamp,impression from rs_member_history where member_id <(
+    def get_member_read_record(self, user_cnt):
+        his_query = '''select member_id,article_id,time_stamp,impression from member_read_event where member_id <(
                 select user_id from member_detail order by user_id limit %s,1);'''%(user_cnt)
         member_read_record = self.select(his_query)
         return member_read_record
 
 
-
 class PreProcess_sql:
-
 
     @staticmethod
     def PreprocessArticles(user_cnt=7558):
         mysql = MysqlConnect()
         full_article_info = mysql.get_article_content(user_cnt)
 
-        art_ids, art_cates, art_contents, art_timestamp=[],[],[],[]
+        art_ids, art_cates, art_contents, art_timestamp = [], [], [], []
         for article in full_article_info:
             art_ids.append(article[0])
             art_cates.append(article[1])
-            art_contents.append(article[2] +" "+ article[3])
+            art_contents.append(article[2] + " " + article[3])
 
             art_timestamp.append(article[4])
 
         return art_ids, art_cates, art_contents, art_timestamp
 
-
     @staticmethod
-    def PreprocessHistory(art_ids,user_cnt=7560,min_time_seq = 5):
-        '''
+    def PreprocessHistory(art_ids, user_cnt=7560, min_time_seq=5):
+        """
         获取用户的浏览记录
         :param his_file: 为兼容原始函数，可不使用
         :param art_ids:
         :param min_time_seq:
         :return:
-        '''
+        """
         art_id = np.asarray(art_ids)
         out_map = {}
         out_art_read = {}
@@ -105,9 +102,9 @@ class PreProcess_sql:
             userID = int(each_record[0])
             readID = int(each_record[1])
             timestamp = int(each_record[2])
-            unreadID = [int(s) for s in each_record[3].split(",")]# 这里的一个误区是 其他系统的推荐信息
+            unreadID = [int(s) for s in each_record[3].split(",")]
             if (len(unreadID)):
-                if len(np.where(art_id == readID)[0]): # art_id list中等于 readID的 一维下标
+                if len(np.where(art_id == readID)[0]):  # art_id list中等于 readID的 一维下标
                     readInd = int(np.where(art_id == readID)[0][0]) # 取下标
                     # unreadInd = [int(np.where(art_id == unid)[0][0]) for unid in unreadID if
                     #              len(np.where(art_id == unid)[0]) > 0]
@@ -122,7 +119,7 @@ class PreProcess_sql:
             #增加article_id : timestamp 的映射
             if readID not in out_art_read:
                 out_art_read[readID] = []
-                readIndx =np.where(art_id == readID)
+                readIndx = np.where(art_id == readID)
                 if len(readIndx)< 1 or len(readIndx[0]) < 1:
                     readInd = -1
                 else:
@@ -133,6 +130,6 @@ class PreProcess_sql:
         for userID in out_map.keys():
             #直接略去了900的用户数
             if len(out_map[userID]) > min_time_seq:
-                out_map[userID].sort(key=lambda x: x[0]) # 按时间戳排序
+                out_map[userID].sort(key=lambda x: x[0])  # 按时间戳排序
                 out_obj += [(userID, [timeseq[1] for timeseq in out_map[userID]]),]
-        return out_obj,out_art_read
+        return out_obj, out_art_read

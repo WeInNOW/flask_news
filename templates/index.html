@@ -10,20 +10,15 @@
 <div class="section">
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
-                <div class="section-title">
-                    <h2>Recent Posts</h2>
-                </div>
-            </div>
-            {% for article in articles %}
-                <div class="col-md-4">
+            {% for article in popularity_articles %}
+                <div class="col-md-6">
                     <div class="post">
                         <a class="post-img" href="{{ url_for('detail',article_id=article.article_id) }}">
-                            <img src={{ article.img_url }} alt=""></a>
+                            <img src={{ article.img_url }} alt="" height=365px ></a>
                         <div class="post-body">
                             <div class="post-meta">
 {#                                类别体现汉字#}
-                                <a class="post-category cat-{{ article.category }}" href="category.html">{{ category_dict.setdefault(article.category_id,"其他") }}</a>
+                                <a class="post-category cat-{{ article.category }}" href="category.html">{{ article.category }}</a>
                                 <span class="post-date">{{ article.update_date }}</span>
                             </div>
                             <h3 class="post-title"><a href="{{ url_for('detail',article_id=article.article_id) }}">{{ article.title }}</a></h3>
@@ -35,18 +30,41 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="section-title">
-                    <h2>最多浏览</h2>
+                    <h2><a href="{{ url_for('timeline') }}">新鲜事儿</a></h2>
                 </div>
             </div>
-            {% for article in articles %}
+            {% for article in recent_articles %}
                 <div class="col-md-4">
                     <div class="post">
                         <a class="post-img" href="{{ url_for('detail',article_id=article.article_id) }}">
-                            <img src={{ article.img_url }} alt=""></a>
+                            <img src={{ article.img_url }} alt="" height=270px ></a>
                         <div class="post-body">
                             <div class="post-meta">
 {#                                类别体现汉字#}
-                                <a class="post-category cat-{{ article.category }}" href="category.html">{{ category_dict.setdefault(article.category_id,"其他") }}</a>
+                                <a class="post-category cat-{{ article.category }}" href="category.html">{{ article.category }}</a>
+                                <span class="post-date">{{ article.update_date }}</span>
+                            </div>
+                            <h3 class="post-title"><a href="{{ url_for('detail',article_id=article.article_id) }}">{{ article.title }}</a></h3>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h2><a href="{{ url_for('hot_articles') }}">热门文章</a></h2>
+                </div>
+            </div>
+            {% for article in hot_articles %}
+                <div class="col-md-4">
+                    <div class="post">
+                        <a class="post-img" href="{{ url_for('detail',article_id=article.article_id) }}">
+                            <img src={{ article.img_url }} alt="" height=270px ></a>
+                        <div class="post-body">
+                            <div class="post-meta">
+{#                                类别体现汉字#}
+                                <a class="post-category cat-{{ article.category }}" href="category.html">{{ article.category }}</a>
                                 <span class="post-date">{{ article.update_date }}</span>
                             </div>
                             <h3 class="post-title"><a href="{{ url_for('detail',article_id=article.article_id) }}">{{ article.title }}</a></h3>

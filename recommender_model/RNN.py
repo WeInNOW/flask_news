@@ -35,7 +35,7 @@ def PickTrain(feature, his, train_ratio, ind = None):
     while len(unreadInd) < len(readInd):
         randomInd = torch.randperm(len(feature))[0].item()
         if randomInd not in set(user):
-            unreadInd += [randomInd,]
+            unreadInd += [randomInd, ]
     unreadTensor = torch.stack([torch.Tensor(feature[unread]) for unread in unreadInd])
     return torch.Tensor(readTensor[:-1, :]), torch.Tensor(readTensor[1:, :]), unreadTensor[1:]
 
@@ -46,13 +46,13 @@ def PickTest(feature, his, ind):
     return torch.Tensor(readTensor[:-1, :]), readInd[1:]
 
 def RecommendTest(user_state, feature, num_rec):
-    list = [(i, float(torch.dot(torch.Tensor(feature[i,:]), user_state))) for i in range(feature.shape[0])]
-    list.sort(key=lambda x:-x[1])
+    list = [(i, float(torch.dot(torch.Tensor(feature[i, :]), user_state))) for i in range(feature.shape[0])]
+    list.sort(key=lambda x: -x[1])
     list = [item[0] for item in list]
     return list[:num_rec]
 
 def Recommend(user_state, feature, num_rec, set_to_ignore = set()):
-    list = [(i, float(torch.dot(torch.Tensor(feature[i,:]), user_state))) for i in range(feature.shape[0])]
+    list = [(i, float(torch.dot(torch.Tensor(feature[i, :]), user_state))) for i in range(feature.shape[0])]
     list.sort(key=lambda x:-x[1])
     list = [item[0] for item in list]
     list = Deduplicate(list, feature, num_rec, set_to_ignore)
@@ -97,7 +97,7 @@ def SeqLoss(input, positive, negative, num_exa = None):
     return loss
 
 class RNN(SeriModel):
-    def __init__(self,art_ids,reader_ids):
+    def __init__(self, art_ids, reader_ids):
         hidden_size = HiddenDim
         super(RNN, self).__init__()
         self.hidden_size = hidden_size
@@ -120,7 +120,7 @@ class RNN(SeriModel):
         for iter in range(MaxIter):
             time_seq_loss = 0
             optimizer.zero_grad()
-            loss = torch.Tensor([0.0,])
+            loss = torch.Tensor([0.0, ])
             for batch in range(BatchSize):
                 input, positive, negative = PickTrain(feature, user_his, train_ratio)
                 hidden = self.init_hidden()
@@ -136,7 +136,7 @@ class RNN(SeriModel):
 
             optimizer.step()
         self.save(save_path)
-        Plot(range(len(loss_list)), loss_list, self.name)
+        # Plot(range(len(loss_list)), loss_list, self.name)  #
         return loss_list[-1]
 
     #输出：准确率、召回率
@@ -156,7 +156,7 @@ class RNN(SeriModel):
         num_positive = 0
         num_test = 0
         for i in range(len(user_his)):
-            input, readInd = PickTest(feature, user_his, i) # 现场训练
+            input, readInd = PickTest(feature, user_his, i)  # 现场训练
             hidden = self.init_hidden()
             output = None
             for j in range(math.floor(input.shape[0] * train_ratio)):
@@ -183,18 +183,15 @@ class RNN(SeriModel):
         return num_hit/(num_test), num_hit/num_positive
 
     #获取推荐列表
-    def recommender_articles(self, feature,user_id, user_his, train_ratio):
-        '''
+    def recommender_articles(self, feature, user_id, user_his, train_ratio):
 
-        '''
         self.train(False)
         num_hit = 0
         num_positive = 0
         num_test = 0
         # 获取用户user_id对应的下标
-        i = self.reader_ids.index(user_id) #127385647 ,10387504
-
-        input, readInd = PickTest(feature, user_his, i) # 现场训练,有模型了
+        i = self.reader_ids.index(user_id)  # 127385647 , 10387504
+        input, readInd = PickTest(feature, user_his, i)  # 现场训练, 有模型了
         hidden = self.init_hidden()
         output = None
         for j in range(math.floor(input.shape[0] * train_ratio)):
@@ -216,8 +213,8 @@ class RNN(SeriModel):
 
 
 class GRU(RNN):
-    def __init__(self,art_ids,reader_ids):
-        super(GRU, self).__init__(art_ids,reader_ids)
+    def __init__(self, art_ids, reader_ids):
+        super(GRU, self).__init__(art_ids, reader_ids)
         input_size = HiddenDim
         control_size = ConDim
         self.input_size = input_size

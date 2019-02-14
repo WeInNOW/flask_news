@@ -14,7 +14,6 @@
                     <a href="{{ url_for('detail',article_id=article.article_id) }}">
                     {{ article.title }}</a></p>
                 <div class="avatar-group">
-{#                    <img src="{{ url_for('static', filename='images/qingwalogo.jpg') }}" alt="" class="avatar"> width="179" height="109"#}
                     <img class="avatar" alt="" src={{ article.img_url }} >
                 </div>
                 <p></p>

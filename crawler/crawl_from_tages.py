@@ -86,7 +86,7 @@ def crawl_news():
             # 获取标题
             tag = soup.find('h1', class_='ts-title')
             title = tag.find('span', class_='ts-headline').get_text().strip()
-            title = title.replace("'","_")
+            title = title.replace("'", "_")
             # print(title)
 
             # 获取时间和标题
@@ -103,13 +103,13 @@ def crawl_news():
             tag = soup.find('div', class_='ts-article-content').find('div',class_='ts-article-body')
             content = ''
             segment_cnt = 0
-            for segment in tag.find_all('p'): # 获得3段就ok了
+            for segment in tag.find_all('p'):  # 获得3段就ok了
                 if segment_cnt > 2:
                     break
                 # print(segment.get_text())
                 content += segment.get_text() + '\n'  # 获取所有的段落内容
                 segment_cnt += 1
-            content = content.replace("'","_")
+            content = content.replace("'", "_")
         except Exception as e:
             print(e)
             continue
