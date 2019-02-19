@@ -27,6 +27,7 @@
                 </div>
             {% endfor %}
         </div>
+
         <div class="row">
             <div class="col-md-12">
                 <div class="section-title">
@@ -44,12 +45,15 @@
                                 <a class="post-category cat-{{ article.category }}" href="category.html">{{ article.category }}</a>
                                 <span class="post-date">{{ article.update_date }}</span>
                             </div>
-                            <h3 class="post-title"><a href="{{ url_for('detail',article_id=article.article_id) }}">{{ article.title }}</a></h3>
+                            <div class="post-article-title">
+                                <h3 class="post-title" ><a href="{{ url_for('detail',article_id=article.article_id) }}">{{ article.title }}</a></h3>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
+
         <div class="row">
             <div class="col-md-12">
                 <div class="section-title">
@@ -67,12 +71,14 @@
                                 <a class="post-category cat-{{ article.category }}" href="category.html">{{ article.category }}</a>
                                 <span class="post-date">{{ article.update_date }}</span>
                             </div>
-                            <h3 class="post-title"><a href="{{ url_for('detail',article_id=article.article_id) }}">{{ article.title }}</a></h3>
+                            <h3 class="post-article-title"><a href="{{ url_for('detail',article_id=article.article_id) }}">{{ article.title }}</a></h3>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
+
+
     </div>
 </div>
 {% endblock %}

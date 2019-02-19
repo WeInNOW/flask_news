@@ -12,11 +12,14 @@ from redis_con import redis_connect
 pymysql.install_as_MySQLdb()  # mysqldb python3 之后不在支持
 from flask import Flask, render_template, request, redirect, url_for, session, current_app
 import config
-from models import RsAtricleInfo, RsMemberDetail, RsMemberHistory, CrawlArticleInfoOnline, CategoryDict, \
-    ArticleInteraction
+from models import MemberReadEvent, RsMemberDetail, CrawlArticleInfoOnline, CategoryDict, \
+    ArticleInteraction, PopularestArticle
 from exts import db
 from decorators import login_required
 from sqlalchemy import or_
+import sys
+sys.path.append("./recommender_model/")
+from popular_recommender.popularity_recommendation import generate_recommender_list
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -31,10 +34,14 @@ def index():
         category_id = category.category_id
         label = category.label
         category_dict[category_id] = label
-
+    impressions = generate_recommender_list()
     context = {
-        'popularity_articles': CrawlArticleInfoOnline.query.order_by(CrawlArticleInfoOnline.update_date.desc()).limit(4),
-        'recent_articles': CrawlArticleInfoOnline.query.order_by(CrawlArticleInfoOnline.update_date.desc()).limit(9),
+        'popularity_articles': CrawlArticleInfoOnline.query
+        # .filter(CrawlArticleInfoOnline.article_id == PopularestArticle.article_id)
+        .filter(CrawlArticleInfoOnline.article_id.in_(impressions)).order_by
+        (CrawlArticleInfoOnline.update_date).limit(4),
+        'recent_articles': CrawlArticleInfoOnline.query
+        .order_by(CrawlArticleInfoOnline.update_date.desc()).limit(9),
         'hot_articles': CrawlArticleInfoOnline.query.filter(CrawlArticleInfoOnline.time_stamp >= (time.time() - 3600 * 96))
         .order_by(CrawlArticleInfoOnline.read_cnt.desc()).limit(9),
         'category_dict': category_dict
@@ -60,15 +67,10 @@ def login():
             return u'用户名或者密码错误，请确认好重新登录'
 
 
-'''
-注册方法先不给使用
-'''
-
-
-@app.route('/regist/', methods=['GET', 'POST'])
-def regist():
+@app.route('/register/', methods=['GET', 'POST'])
+def register():
     if request.method == 'GET':
-        return render_template('regist.html')
+        return render_template('register.html')
     else:
         telephone = request.form.get('telephone')
         username = request.form.get('username')
@@ -78,7 +80,7 @@ def regist():
         # 手机号码验证，如果被注册了就不能用了
         user = RsMemberDetail.query.filter(RsMemberDetail.username == username).first()
         if user:
-            return u'该手机号码被注册，请更换手机'
+            return u'该用户名已被注册，请更换手机'
         else:
             # password1 要和password2相等才可以
             if password1 != password2:
@@ -94,7 +96,7 @@ def regist():
 # 判断用户是否登录，只要我们从session中拿到数据就好了   注销函数
 @app.route('/logout/')
 def logout():
-    # session.pop('user_id')
+    session.pop('user_id')
     # del session('user_id')
     session.clear()
     return redirect(url_for('login'))
@@ -108,7 +110,7 @@ def question():
     else:
         title = request.form.get('title')
         content = request.form.get('text')
-        question = RsAtricleInfo(title=title, content=content)
+        question = CrawlArticleInfoOnline(title=title, content=content)
         user_id = session.get('user_id')
         user = RsMemberDetail.query.filter(RsMemberDetail.user_id == user_id).first()
         # question.author = user
@@ -126,7 +128,7 @@ def recommender():
     # 直接就是推荐表
     # impressions = impression[0].split(',')
     # app.logger.warning(impressions)
-
+    # print(impressions)
     context = {
         'articles': CrawlArticleInfoOnline.query.filter(CrawlArticleInfoOnline.article_id.in_(impressions)).order_by(
             CrawlArticleInfoOnline.update_date),
@@ -230,11 +232,11 @@ def timeline_detail(article_id):
 def add_readhistory():
     content = request.form.get('article_content')
     article_id = request.form.get('article_id')
-    answer = RsMemberHistory(article_id=article_id)
+    answer = MemberReadEvent(article_id=article_id)
     user_id = session['user_id']
     user = RsMemberDetail.query.filter(RsMemberDetail.id == user_id).first()
     # answer.author = user
-    question = RsAtricleInfo.query.filter(RsAtricleInfo.article_id == article_id).first()
+    question = CrawlArticleInfoOnline.query.filter(CrawlArticleInfoOnline.article_id == article_id).first()
     answer.question = question
     db.session.add(answer)
     db.session.commit()
@@ -242,6 +244,7 @@ def add_readhistory():
 
 
 @app.route('/search/')
+@login_required
 def search():
     q = request.args.get('q')  # 查找不能有空格，否则会以加号隔开，找不到
     # title, content
@@ -249,9 +252,11 @@ def search():
     # questions = Question.query.filter(or_(Question.title.contains(q),
     #                                     Question.content.constraints(q))).order_by('-create_time')
     # 与 查找（只能通过标题来查找）
-
+    if q is None or len(q) < 1:
+        return redirect(url_for('index'))
     app.logger.warning(q)
-    questions = RsAtricleInfo.query.filter(or_(RsAtricleInfo.title.contains(q), RsAtricleInfo.text.contains(q)))
+    questions = CrawlArticleInfoOnline.query.filter(or_(CrawlArticleInfoOnline.title.contains(q),
+                                                        CrawlArticleInfoOnline.text.contains(q)))
     return render_template('category_label.html', name='检索', articles=questions)
 
 

@@ -82,7 +82,7 @@ class PreProcess_sql:
         return art_ids, art_cates, art_contents, art_timestamp
 
     @staticmethod
-    def PreprocessHistory(art_ids, user_cnt=7560, min_time_seq=5):
+    def PreprocessHistory(art_ids, user_cnt=7558, min_time_seq=5):
         """
         获取用户的浏览记录
         :param his_file: 为兼容原始函数，可不使用
@@ -120,7 +120,7 @@ class PreProcess_sql:
             if readID not in out_art_read:
                 out_art_read[readID] = []
                 readIndx = np.where(art_id == readID)
-                if len(readIndx)< 1 or len(readIndx[0]) < 1:
+                if len(readIndx) < 1 or len(readIndx[0]) < 1:
                     readInd = -1
                 else:
                     readInd = readIndx[0][0]

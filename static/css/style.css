@@ -544,6 +544,9 @@ RESPONSIVE
      margin-top: 15px;
      margin-bottom: 15px;
 }
+ .post-article-title {
+    height: 38px;
+}
  .post-meta .post-category {
      font-size: 13px;
      text-transform: uppercase;

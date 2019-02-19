@@ -15,13 +15,13 @@ import codecs
 import time
 from GeneralPara import *
 from FilePathPara import *
-
+from popular_recommender.popularity_recommendation import generate_recommender_list
 # art_ids, art_cats, art_contents = Pre.PreprocessArticles(NewsDataSetPath, True)
 from preProcess_sql import PreProcess_sql
 # art_ids, art_cats, art_contents, art_timestamp = PreProcess_sql.PreprocessArticles()
 art_ids, art_cats, raw_words, art_timestamp = PreProcess_sql.PreprocessArticles()
 art_contents = []  # 记录文章直接的切分词语，已去除了英文和数字
-for art_content in art_contents:
+for art_content in raw_words:
     art_content.replace("\n", "")
     article_word = ' '.join(jieba.cut(art_content))
     art_contents.append(re.sub('[a-zA-Z0-9.。:：,，)）(（！!?”“\"]', '', article_word))  # 去除英文和数字
@@ -34,7 +34,7 @@ art_use_ids = [art_ids[index] for index in filtered_art_index]
 art_cats = [art_cats[index] for index in filtered_art_index]
 art_norm_freq = [norm_freq[index] for index in filtered_art_index]
 encoder = AE.AutoEncoder()
-encoder.load(AutoEncoderSavePath+"7000.net")
+encoder.load(AutoEncoderSavePath+"7558.net")
 art_encoded = encoder.encodeNorm(torch.Tensor(art_norm_freq))
 user_repre = js.load(open(UserStatePath, "r"))
 for user_id in user_repre:
@@ -162,16 +162,22 @@ def getRecommender(user_id):
     reader_ids = [tuple[0] for tuple in reader_his]
     reader_record = [tuple[1] for tuple in reader_his]
     if user_id not in reader_ids:
-        # 用户无操作记录，需要进行其他推荐方式 -
-        exit(1)
+        # 用户无操作记录，需要进行其他推荐方式 - 非个性化推荐
+        return generate_recommender_list()
     gru = GRU(art_ids, reader_ids)  #
-    gru.load(GRUSavePath + "7000.net")
+    gru.load(GRUSavePath + "7558.net")
     return gru.recommender_articles(art_encoded, user_id, reader_record, TrainRatio)
 
 
 if __name__ == '__main__':
     # rec = Recommender()
     # rec.run()127385647 #
-    user_id = 362925
+    user_id = 1008010
     print(getRecommender(user_id))
+    print(getRecommender(25002630))
+# History Read.
+# [527, 1095, 566, 717, 722, 593, 910, 540, 924, 621]
+# History Read.
+# [1095, 566, 527, 722, 1001, 558, 593, 621, 540, 910]
 
+# 25002630的浏览记录：<class 'list'>: [264, 264, 244, 244, 193, 193, 189, 188, 495, 502, 502]

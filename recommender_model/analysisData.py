@@ -8,14 +8,14 @@ reader_his,art_his_tim = Pre.PreprocessHistory(HistoryDataSetPath, art_ids)
 def get_read_count():
     article_readcount_segment=[]
     for article,value in art_his_tim.items():# 文章的下标
-        if value[0] == -1 : # 无这篇文章
+        if value[0] == -1:  # 无这篇文章
             continue
         art_ind = value[0]
         value[0] = art_timestamp[value[0]]
         #if value[0] == 186363919:
         #    break
         #print (value)
-        value = [int((value[v] - value[0])/(1000*60*30)) for v in range(len(value))]
+        value = [int((value[v] - value[0])/(60*30)) for v in range(len(value))]
         #if value[-1] < 6:#小于7个时间段的不进行计算 - 在后面再说
         #    continue
         #freq = [0] * (value[-1]+2)

@@ -141,7 +141,7 @@ class RNN(SeriModel):
 
     #输出：准确率、召回率
     def testModel(self, feature, user_his, train_ratio):
-        '''
+        """
         推荐策略是什么，一次推荐10个，只要其中有一个命中，就hit + 1 ，总数 + 10  - 这是实时推荐
         但是离线推荐并不是这样，推荐10个，看总共有多少个命中
 
@@ -150,7 +150,7 @@ class RNN(SeriModel):
         :param user_his:
         :param train_ratio:
         :return:
-        '''
+        """
         self.train(False)
         num_hit = 0
         num_positive = 0
@@ -191,7 +191,9 @@ class RNN(SeriModel):
         num_test = 0
         # 获取用户user_id对应的下标
         i = self.reader_ids.index(user_id)  # 127385647 , 10387504
+        print(i)
         input, readInd = PickTest(feature, user_his, i)  # 现场训练, 有模型了
+        print(input[0][:4])
         hidden = self.init_hidden()
         output = None
         for j in range(math.floor(input.shape[0] * train_ratio)):
@@ -206,6 +208,7 @@ class RNN(SeriModel):
                 recommend_set = RecommendTest(user_state, feature, TestRecommendCount)
         else:
             user_state = output[0, :]
+            # print(user_state)
             recommend_set = RecommendTest(user_state, feature, TestRecommendCount)
 
         return [self.art_ids[index] for index in recommend_set]

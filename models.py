@@ -9,7 +9,9 @@ class RsMemberDetail(db.Model):
     username = db.Column(db.String(32), nullable=False)
     password = db.Column(db.String(32), nullable=False)
     nickname = db.Column(db.String(32))
-    del_flag = db.Column(db.String(1), nullable=False)
+    telephone = db.Column(db.String(11))
+    gender = db.Column(db.Integer)
+    del_flag = db.Column(db.String(1))
 
 
 class CategoryDict(db.Model):
@@ -75,12 +77,20 @@ class ArticleInteraction(db.Model):
     sim_article_5_score = db.Column(db.Float)
 
 
+class PopularestArticle(db.Model):
+    __tablename__ = 'popularest_articles'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    article_id = db.Column(db.BigInteger,)
+    popular_score = db.Column(db.Integer)
+    create_date = db.Column(db.DateTime)
+
+
 class MemberReadEvent(db.Model):
     __tablename__ = 'member_read_event'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    member_id = db.Column(db.BigInteger,nullable=False)#, db.ForeignKey('rs_member_detail.id')
-    article_id = db.Column(db.BigInteger,nullable=False)
+    member_id = db.Column(db.BigInteger, nullable=False)  # db.ForeignKey('rs_member_detail.id')
+    article_id = db.Column(db.BigInteger, nullable=False)
     # question = db.relationship('Question', backref=db.backref('answers', order_by=id.desc()))
     time_stamp = db.Column(db.BigInteger, nullable=True)
-    impression = db.Column(db.String(256)) # 推荐项目
+    impression = db.Column(db.String(256))  # 推荐项目
 

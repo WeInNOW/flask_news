@@ -48,7 +48,7 @@ class MysqlConnect(object):
         # 系统设计所用数据,设使用最近500条数据
         sql = """
         select article_id,category,title,text,time_stamp from crawl_article_info_online 
-        order by article_id desc limit 640;
+        order by article_id desc limit 700;
         """
         crawl_article_info = self.select(sql)
         return crawl_article_info
@@ -139,8 +139,8 @@ class PreProcess_sql:
         """
         找到一个最小的进行更新，不考虑顺序
         :param source_article:
-        :param article_id: 数组
-        :param cos_val:数组
+        :param article_id: 就是一个id
+        :param cos_val:余弦值
         :return:
         """
         mysql = MysqlConnect()
@@ -152,6 +152,8 @@ class PreProcess_sql:
                 if sim_data[i*2 + 1] <= min_cos_val:
                     min_cos_val = sim_data[i*2 + 1]
                     min_index = i
+                if sim_data[i*2] == article_id:  # 文章已存在；
+                    return
             if cos_val < min_cos_val:
                 return
         mysql.update_sim_article(source_article, article_id, min_index+1, cos_val)

@@ -32,7 +32,7 @@ def train_test_RNN_GRU(TrainAutoEncoder=False,TrainRNN = False,TestRNN = False,T
     # art_ids, art_cats, art_contents, art_timestamp = PreProcess_sql.PreprocessArticles(user_cnt)
     art_ids, art_cats, raw_words, art_timestamp = PreProcess_sql.PreprocessArticles()
     art_contents = []  # 记录文章直接的切分词语，已去除了英文和数字
-    for art_content in art_contents:
+    for art_content in raw_words:
         art_content.replace("\n", "")
         article_word = ' '.join(jieba.cut(art_content))
         art_contents.append(re.sub('[a-zA-Z0-9.。:：,，)）(（！!?”“\"]', '', article_word))  # 去除英文和数字
@@ -40,7 +40,7 @@ def train_test_RNN_GRU(TrainAutoEncoder=False,TrainRNN = False,TestRNN = False,T
     tokens = Pre.Tokenize(art_contents, StopWordPath)
     token_freq, max_freq = Pre.CountToken(tokens)
     norm_freq = Pre.Normalize(token_freq, max_freq)
-    filtered_art_index = Pre.MinCountClip(tokens, 5)
+    filtered_art_index = Pre.MinCountClip(tokens, 5)  # 词频小于5的过滤掉
     art_use_ids = [art_ids[index] for index in filtered_art_index]
     art_cats = [art_cats[index] for index in filtered_art_index]
     art_norm_freq = [norm_freq[index] for index in filtered_art_index]
@@ -52,7 +52,7 @@ def train_test_RNN_GRU(TrainAutoEncoder=False,TrainRNN = False,TestRNN = False,T
     '''
     encoder = AE.AutoEncoder()
 
-    if (TrainAutoEncoder):
+    if TrainAutoEncoder:
         '''
         相同类别，与不同类别直接用category字段吗？
         '''
@@ -125,7 +125,7 @@ def trains(user_cnt):
 def tests(user_cnt):
 
     # TrainAutoEncoder = True,
-    train_test_RNN_GRU(TestGRU=True,TrainRatio=0.7,user_cnt=user_cnt)
+    train_test_RNN_GRU(TestGRU=True,TrainRatio=0.7, user_cnt=user_cnt)
 
 
 if __name__ == '__main__':
@@ -134,5 +134,5 @@ if __name__ == '__main__':
     #     print("user cnt(k):"+ str(i))
     #     trains(i*1000)
     trains(user_cnt=7558)
-    # tests(1000)
+    # tests(7558)
 

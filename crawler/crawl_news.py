@@ -13,7 +13,7 @@ from distutils.filelist import findall
 
 category_dict = {'台湾': '港澳台', '财经': '财经', '国际': '国际', '体育': '文体', '视频': '其他', '图片': '其他', '国内': '社会', '社会': '社会',
                  '金融': '财经', '港澳': '港澳台', '文化': '文体', '华人': '国际', '产经': '财经', '娱乐': '其他', '汽车': '社会', '证券': '财经',
-                 'I  T': '互联网', '军事': '军事', '葡萄酒': '财经', '能源': '国际', '健康': '社会'}
+                 'I  T': '互联网', '军事': '军事', '葡萄酒': '财经', '能源': '国际', '健康': '社会','房产': '社会'}
 
 
 def get_soup(source_url):
@@ -68,7 +68,7 @@ def crawl_news(source_url):
             # print(category)
             if category is None:  # 没有出现的不做考虑
                 continue
-            # 不知道 2月 1号 是： 2-1
+            # 知道 2月 1号 是： 2-1
             update_date = "2019-0" + time_list[index].replace(" ", "T")
             print(update_date)
             timestamp = int(time.mktime(time.strptime(update_date, '%Y-%m-%dT%H:%M')))
@@ -181,4 +181,4 @@ if __name__ == '__main__':
     for i in range(1, 8):
         source_url = 'http://www.chinanews.com/scroll-news/news' + str(i) + '.html'
         crawl_news(source_url)
-    parse_article.sim_article_parse_update()
+    # parse_article.sim_article_parse_update()
